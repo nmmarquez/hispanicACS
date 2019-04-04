@@ -1,0 +1,133 @@
+---
+output: 
+    html_document:
+        includes:
+            in_header: assets/huskyheader.html
+            before_body: assets/huskynavbar.html
+---
+# Changes in Socal Population Compostion
+#### Neal Marquez
+    
+    
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+    echo=FALSE, warning=FALSE, message=FALSE)
+```
+
+```{r}
+rm(list=ls())
+library(tidycensus)
+library(acs)
+library(jsonlite)
+library(tidyverse)
+library(stringr)
+library(DT)
+library(sf)
+library(plotly)
+library(latex2exp)
+library(tigris)
+library(leaflet)
+library(mapview)
+
+spdf2leaf <- function(df, col="data", label=NULL){
+    lab_label <- ifelse(is.null(label), col, label)
+    cols <- grep("geometry", names(df), value = T, invert = T)
+    df <- mutate(df, data = as.data.frame(df)[,col])
+    
+    # pop up info
+    popup <- sapply(cols, function(c){
+        paste0(c, ": ", as.data.frame(df)[,c])}) %>%
+        apply(1, function(z) paste0(z, collapse = "<br>"))
+    
+    # color palette
+    pal <- colorNumeric(
+        palette = "Spectral", 
+        domain=as.data.frame(df)$data, reverse=TRUE)
+    
+    # see map
+    map1<-leaflet() %>%
+        addProviderTiles("CartoDB.Positron") %>%
+        addPolygons(data=df, fillColor=~pal(data), color="#b2aeae", weight=0.3,
+                    fillOpacity=0.7, smoothFactor=0.2, popup=popup) %>%
+        addLegend("bottomright", pal=pal, values=as.data.frame(df)$data,
+                  title = lab_label, opacity = 1)
+    map1
+}
+
+pal2 <- function(x, lo=0, hi=1){
+    pal <- colorNumeric(palette = "Spectral", domain=c(lo,hi), reverse=TRUE)
+    pal(seq(lo, hi, length.out = x))
+}
+
+# api key needs to be your own ACS api key!
+# you can get one here http://api.census.gov/data/key_signup.html
+apiKey <- unlist(read_json("../keys/acs.json"))
+census_api_key(apiKey)
+
+myVars <- c(
+    totalPopulation         = "B01003_001",
+    whitePopulation         = "B01001H_001",
+    fb1                     = "B05003I_005",
+    fb2                     = "B05003I_010",
+    fb3                     = "B05003I_016",
+    fb4                     = "B05003I_021",
+    hispanicPopulation      = "B01001I_001")
+
+subVars <- paste0(c("hispanic", "white", "other"), "Population")
+counties <- paste0("060", c(LA=73, OC=59, SD=37, SB=65, RV=71))
+# what happens if I do a global environment y here?
+# y <- 2010
+
+# tract analysis
+if(!file.exists("../data/caDF.Rds")){
+caDF <- rbind(
+    get_acs(
+        geography = "tract",
+        variables = myVars, geometry = TRUE,
+        state="CA", year=2010) %>%
+        mutate(year=2010),
+    get_acs(
+        geography = "tract",
+        variables = myVars, geometry = TRUE,
+        state="CA", year=2016) %>%
+        mutate(year=2016))
+
+    caDF %>%
+        mutate(county=str_sub(GEOID, 1, 5)) %>%
+        select(-moe) %>%
+        spread("variable", "estimate") %>%
+        mutate(otherPopulation=totalPopulation
+               -whitePopulation-hispanicPopulation) %>%
+        mutate(fbHispanicPopulation=fb1+fb2+fb3+fb4) %>%
+        select(-fb1:-fb4) %>%
+        saveRDS("../data/caDF.Rds")
+}
+
+caDF <- read_rds("../data/caDF.Rds") %>%
+    st_transform("+proj=longlat +datum=WGS84")
+
+# looking only out the Socal area lets take a look at some summary stats
+# caDF %>%
+#     filter(county %in% counties & year == 2016) %>%
+#     as_tibble() %>%
+#     select(-year, -geometry) %>%
+#     summarize_if(is.numeric, sum) 
+
+# lets check out the hispanic population percentage across counties
+```
+
+W
+
+```{r}
+caDF %>%
+    filter(county %in% counties & year == 2016) %>%
+    mutate(pHispanic=round(hispanicPopulation/totalPopulation, 4)) %>%
+    mutate(pHispanic=ifelse(is.na(pHispanic), 0, pHispanic)) %>%
+    mutate(pWhite=round(whitePopulation/totalPopulation, 4)) %>%
+    mutate(pWhite=ifelse(is.na(pWhite), 0, pWhite)) %>%
+    mutate(pOther=round(otherPopulation/totalPopulation, 4)) %>%
+    mutate(pOther=ifelse(is.na(pOther), 0, pOther)) %>%
+    mutate(pFBHispanic=round(fbHispanicPopulation/hispanicPopulation, 4)) %>%
+    mutate(pFBHispanic=ifelse(is.na(pFBHispanic), 0, pFBHispanic)) %>%
+    spdf2leaf("pHispanic")
+```

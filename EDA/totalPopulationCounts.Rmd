@@ -1,0 +1,331 @@
+---
+output: 
+    html_document:
+        includes:
+            in_header: assets/huskyheader.html
+            before_body: assets/huskynavbar.html
+---
+# Changes in west Coast Population Compostion
+#### Neal Marquez
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+    echo=FALSE, warning=FALSE, message=FALSE)
+```
+
+In this document we examine the population composition changes that are found between the 2010 and 2016 ACS surveys. Specifically we focus on how compositional changes of race have been fueled by some poplations growing and others declining at the sub-County level. This analysis divides the racial categories into white, hispanic, and other. 
+
+```{r}
+rm(list=ls())
+library(tidycensus)
+library(acs)
+library(jsonlite)
+library(tidyverse)
+library(stringr)
+library(DT)
+library(sf)
+library(plotly)
+library(latex2exp)
+library(tigris)
+library(leaflet)
+library(mapview)
+
+# api key needs to be your own ACS api key!
+# you can get one here http://api.census.gov/data/key_signup.html
+apiKey <- unlist(read_json("../keys/acs.json"))
+census_api_key(apiKey)
+
+myVars <- c(
+    totalPopulation         = "B01003_001",
+    whitePopulation         = "B01001H_001",
+    fb1                     = "B05003I_005",
+    fb2                     = "B05003I_010",
+    fb3                     = "B05003I_016",
+    fb4                     = "B05003I_021",
+    hispanicPopulation      = "B01001I_001")
+
+subVars <- paste0(c("hispanic", "white", "other", "fbHispanic"), "Population")
+years <- c(2010, 2016)
+states <- c("CA", "WA", "OR")
+
+# Download the population data from the tidy census package
+nah <- capture.output(multiYearDF <- bind_rows(mapply(function(y, s){
+    mutate(get_acs(
+        geography = "county subdivision",
+        variables = myVars, geometry = FALSE,
+        state=s, year=y), year=y) %>%
+        mutate(state=s)}, 
+    rep(years, length(states)),
+    rep(states, each=length(years)),
+    SIMPLIFY=FALSE
+    )) %>%
+    select(-moe) %>%
+    spread("variable", "estimate") %>%
+    mutate(
+        otherPopulation=totalPopulation-whitePopulation-hispanicPopulation) %>%
+    mutate(fbHispanicPopulation=fb1+fb2+fb3+fb4) %>%
+    select(-fb1:-fb4))
+
+# We have to download the shape files separately which is kind of a pain
+nah <- capture.output(sfStates <- do.call(rbind, lapply(states, function(s){
+    # convert to sf object
+    st_as_sf(county_subdivisions(s)) %>%
+        select(GEOID, geometry)})) %>%
+    # change the projection
+    st_transform("+proj=longlat +datum=WGS84"))
+
+deltaDF <- multiYearDF %>%
+    group_by(GEOID, NAME, state) %>%
+    summarise_at(subVars, diff) %>%
+    left_join(select(
+        filter(multiYearDF, year==2016), GEOID, totalPopulation))
+
+whDeltaPopcor <- with(deltaDF, cor(x=hispanicPopulation, y=whitePopulation))
+
+ohDeltaPopcor <- with(deltaDF, cor(x=hispanicPopulation, y=otherPopulation))
+
+lm1 <- lm(whitePopulation ~ hispanicPopulation, data=deltaDF)
+lm2 <- lm(otherPopulation ~ hispanicPopulation, data=deltaDF)
+
+deltaPop <- deltaDF %>%
+    filter(totalPopulation >= 15000) %>%
+    #filter(grepl("Orange|Los Angeles|San Diego|Riverside", NAME)) %>%
+    ggplot(aes(x=hispanicPopulation, y=whitePopulation, 
+               text=paste0("County: ", NAME, "\nTotal Pop: ", totalPopulation), 
+               color=state)) +
+    geom_point() +
+    theme_classic() +
+    geom_hline(yintercept=0, linetype=2) +
+    geom_vline(xintercept=0, linetype=2) +
+    geom_abline(linetype=2) +
+    geom_abline(linetype=2, slope=-1) +
+    labs(
+        x="Delta Hipanic Population",
+        y="Delta White Population",
+        color="State") +
+    geom_abline(color="red", slope=coef(lm1)[2], intercept=coef(lm1)[1])
+```
+
+## Changes in Populations
+We begin by examing how sub-county units have changed in sub-populations over time. Using the raw number of population counts for whites and hispanics we can look at how each population decreased or increased at the subcounty level between the two time periods. Figure 1 shows that changes in the total White Population have been both decreasing and increasing depending on the sub-county of concern. Manyy of the locations in CA in particular have seen a decrease in the number of the white population. In contrast, Hispanic populations have almost been strictly increasing at every subcounty. The relationship between these two measures is negative, as shown by the line in red, however much of this is driven by subcounties in California.
+
+```{r}
+ggplotly(deltaPop)
+```
+
+In Figure 1 the dotted lines divide the plot into 8 sections which represent arbitrary distinctions between the types of population changes that are happening. For now I will only focus on everything right of the vertical ditted line, that is where Hispanic populations are increasing. Anything above the horizontal line indicates that White populations are also increasing while anything below it shows decreasing white populations. The diagnol lines represt distictions between the rate of growth. In the upper right hand corner any point above the diagnol line has a white population growing faster than the hispanic population, though both are growing. The bottom right had corner has another diagnol line that distinguishes if the rate of decline of the white population is faster or slower than the rate of increase of the hispanic population. Table 1 shows the breakdown by state for each type of county population change.
+
+```{r}
+deltaDF %>%
+    filter(totalPopulation >= 15000) %>%
+    mutate(growth_type=case_when(
+        hispanicPopulation > 0 & 
+            whitePopulation > 0 & whitePopulation > hispanicPopulation ~
+            "White Growth Outpaces Hispanic Growth",
+        hispanicPopulation > 0 & 
+            whitePopulation > 0 & whitePopulation < hispanicPopulation ~
+            "Hispanic Growth Outpaces White Growth",
+        hispanicPopulation > 0 & 
+            whitePopulation < 0 & abs(whitePopulation) > hispanicPopulation ~
+            "White Decline Outpaces Hispanic Growth",
+        hispanicPopulation > 0 & 
+            whitePopulation < 0 & abs(whitePopulation) < hispanicPopulation ~
+            "Hispanic Growth Outpaces White Decline"
+    )) %>%
+    filter(!is.na(growth_type)) %>%
+    group_by(state, growth_type) %>%
+    summarize(N=n()) %>%
+    mutate(p=N/sum(N)) %>%
+    arrange(state, -p) %>%
+    rename(State=state, `Growth Type`=growth_type, Probability=p) %>%
+    knitr::kable(caption = "Types of Population Changes")
+```
+
+We can contrast this with how other racial groups besides whites and hispanics have chnaged alongside hispanic groups on the westcoast and we find the exact opposite trend. On average there has been postive correlation between the changes in population between hispanics and other non-white populations
+
+```{r}
+deltaPopMinor <- deltaDF %>%
+    filter(totalPopulation >= 15000) %>%
+    #filter(grepl("Orange|Los Angeles|San Diego|Riverside", NAME)) %>%
+    ggplot(aes(x=hispanicPopulation, y=otherPopulation, 
+               text=paste0("County: ", NAME, "\nTotal Pop: ", totalPopulation), 
+               color=state)) +
+    geom_point() +
+    theme_classic() +
+    geom_hline(yintercept=0, linetype=2) +
+    geom_vline(xintercept=0, linetype=2) +
+    geom_abline(linetype=2) +
+    geom_abline(linetype=2, slope=-1) +
+    labs(
+        x="Delta Hipanic Population",
+        y="Delta Other Population",
+        color="State") +
+    geom_abline(color="red", slope=coef(lm2)[2], intercept=coef(lm2)[1])
+
+ggplotly(deltaPopMinor)
+```
+
+Its interesting to note how these changes are driven by chnaging dynamics in CA. As we see in Table 2, the changes in total population between 2010 and 2016 has seen CA lose a substantial number of its white population while WA and OR have seen comprable growth in their White population. However, both Hispanic and Other racial group Populations have increased. These changes have led to a change in the predominate racial group in CA as seen in Table 3.
+
+```{r}
+deltaDF %>%
+    group_by(state) %>%
+    select_at(subVars) %>%
+    summarise_all(sum) %>%
+    rename_at(subVars, function(x) 
+        paste0(
+            "Change in ",
+            str_to_title(str_sub(subVars, 1, -11)),
+            " Population")) %>%
+    rename(State=state) %>%
+    knitr::kable(caption="Raw Change in Population Count by Race")
+```
+
+```{r}
+multiYearDF %>%
+    group_by(state, year) %>%
+    summarise_at(subVars, sum) %>%
+    rename_at(subVars, function(x) 
+        paste0(
+            str_to_title(str_sub(subVars, 1, -11)),
+            " Population")) %>%
+    rename(State=state, Year=year) %>%
+    knitr::kable(caption = "Populations Counts By Race and State: 2010 & 2016")
+```
+
+We can also view the spatial distribution of these populations. Below we have a map of the geographic distribution of the percentage hispanic in a sub-county for the 2016 ACS. Outliers are present in small rural populations especially oon the east side of the west coast however the average percent hispanic by State can be seen in Table 4. Table 5 shows the average county change of percentage of racial population by state.
+
+```{r}
+pal2 <- function(x, lo=0, hi=1){
+    pal <- colorNumeric(palette = "Spectral", domain=c(lo,hi), reverse=TRUE)
+    pal(seq(lo, hi, length.out = x))
+}
+
+pDF <- multiYearDF %>%
+    mutate(pHispanic=hispanicPopulation/totalPopulation) %>%
+    mutate(pWhite=whitePopulation/totalPopulation) %>%
+    mutate(pOther=otherPopulation/totalPopulation) %>%
+    mutate(pFBHispanic=fbHispanicPopulation/hispanicPopulation)
+
+right_join(sfStates, filter(pDF, year==2016)) %>%
+    mapview(zcol="pHispanic", col.regions=pal2)
+```
+
+```{r}
+multiYearDF %>%
+    group_by(state, year) %>%
+    summarise_at(subVars, sum) %>%
+    ungroup %>%
+    mutate(totalPop=hispanicPopulation+whitePopulation+otherPopulation) %>%
+    mutate(year=as.integer(year)) %>%
+    mutate_if(is.double, function(x) round(x / .$totalPop * 100, 2)) %>%
+    select(-totalPop) %>%
+    rename_at(subVars, function(x) 
+        paste0(
+            "Percentage ",
+            str_to_title(str_sub(subVars, 1, -11)),
+            " Population")) %>%
+    rename(State=state, Year=year) %>%
+    knitr::kable(caption="Population Percentage by Race")
+```
+
+```{r}
+deltaPDF <- right_join(
+    sfStates,
+    pDF %>%
+        group_by(GEOID) %>%
+        summarize(
+            deltaPHispanic=diff(pHispanic),
+            deltaPWhite=diff(pWhite),
+            deltaPOther=diff(pOther),
+            deltaPFBHispanic=diff(pFBHispanic)
+        )) %>%
+    left_join(filter(pDF, year==2016))
+
+deltaPDF %>%
+    as_tibble %>%
+    select(state, deltaPHispanic:deltaPFBHispanic) %>%
+    group_by(state) %>%
+    summarize_all(mean, na.rm=TRUE) %>%
+    mutate_if(is.numeric, function(x)round(x*100, 2)) %>%
+    knitr::kable(caption = "Average SubCounty Change in Population  Percentage")
+```
+
+While percetage are more comparable acorss subcounties with vastly different population sizes it is also helpful to examine the raw number change of populations across subcounties on a map. Below we have plots for poth hispanic and white changes in population count between the years 2010 and 2016. Notice that for the hispanic population, again, we see almost strictly increasing population everywhere while for the white populations we see large decreases in the population numbers as well as large increases
+
+```{r}
+right_join(sfStates, deltaDF) %>%
+    mapview(zcol="hispanicPopulation", col.regions=pal2)
+```
+
+```{r}
+right_join(sfStates, deltaDF) %>%
+    mapview(zcol="whitePopulation", col.regions=pal2)
+```
+
+```{r}
+deltaDF %>%
+    group_by(state) %>%
+    summarize_if(is.numeric, sum) %>%
+    mutate(`Native Hispanic Growth Contribution`=
+               round((1-(fbHispanicPopulation/hispanicPopulation))*100,2)) %>%
+    rename(State=state) %>%
+    select(State, hispanicPopulation, fbHispanicPopulation, 
+           `Native Hispanic Growth Contribution`)
+    
+```
+
+```{r}
+pFBDF <- multiYearDF %>%
+    mutate(pHispanic=hispanicPopulation/totalPopulation) %>%
+    mutate(pFBHispanic=fbHispanicPopulation/hispanicPopulation) %>%
+    rename(State=state)
+
+hispByFB <- pFBDF %>%
+    filter(year==2016) %>%
+    ggplot(aes(x=pHispanic, y=pFBHispanic)) +
+    geom_point(aes(
+        color=State,
+        text=paste0("County: ", NAME, "\nTotal Pop: ", totalPopulation))) +
+    geom_smooth(color="red", alpha=.4) +
+    theme_classic() +
+    xlab("Percent Population Hispanic") +
+    ylab("Percent Hispanic Population Foreign Born")
+
+ggplotly(hispByFB)
+```
+
+```{r}
+totalByFB <- pFBDF %>%
+    filter(year==2016) %>%
+    ggplot(aes(x=log(totalPopulation), y=pFBHispanic)) +
+    geom_point(aes(
+        color=State,
+        text=paste0("County: ", NAME, "\nHisp Pop: ", hispanicPopulation))) +
+    geom_smooth(color="red", alpha=.4) +
+    theme_classic() +
+    xlab("Log Total Population") +
+    ylab("Percent Hispanic Population Foreign Born")
+
+ggplotly(totalByFB)
+```
+
+```{r}
+deltaFBplot <- pFBDF %>%
+    group_by(GEOID, NAME, State) %>%
+    summarize(
+        deltaHispPop = diff(hispanicPopulation),
+        deltaFBHispanic = diff(fbHispanicPopulation)) %>%
+    left_join(filter(multiYearDF, year==2016)) %>%
+    ggplot(aes(x=deltaHispPop, y=deltaFBHispanic)) +
+    geom_point(aes(
+        color=State,
+        text=paste0("County: ", NAME, "\nHisp Pop: ", hispanicPopulation))) +
+    geom_hline(yintercept = 0, linetype=2) +
+    theme_classic() +
+    xlab("Change in Hispanic Population") +
+    ylab("Change in Foreign Born Hispanic Population")
+
+ggplotly(deltaFBplot)
+```
