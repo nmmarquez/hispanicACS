@@ -261,8 +261,15 @@ right_join(sfStates, deltaDF) %>%
 
 ```{r}
 right_join(sfStates, deltaDF) %>%
+    mapview(zcol="fbHispanicPopulation", col.regions=pal2)
+```
+
+```{r}
+right_join(sfStates, deltaDF) %>%
     mapview(zcol="whitePopulation", col.regions=pal2)
 ```
+
+
 
 ```{r}
 deltaDF %>%
