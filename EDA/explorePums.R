@@ -91,7 +91,7 @@ DF %>%
     group_by(YEAR, Race, FB, `Age Group`) %>%
     summarize(Count=n()) %>%
     mutate(Proportion=Count/sum(Count)) %>%
-    left_join(ageMeanDF, )
+    left_join(ageMeanDF) %>%
     ggplot(aes(x=`Age Group`, y=Proportion, group=FB, color=FB, fill=FB)) +
     geom_col(position = "dodge") +
     facet_grid(Race ~ YEAR) +
@@ -140,5 +140,20 @@ DF %>%
     ggplot(aes(x=`Age Group`, y=Proportion)) +
     geom_col(position = "dodge") +
     geom_vline(aes(xintercept=medAge), color="red", linetype=2) +
+    facet_grid(Cluster ~ YEAR) +
+    theme_classic()
+
+DF %>%
+    filter(!(FB & (Race != "Hispanic"))) %>%
+    select(YEAR, AGE, STATEFIP, `Age Group`, FB) %>%
+    left_join(stateRegions, by="STATEFIP") %>%
+    group_by(YEAR, FB, Cluster, `Age Group`) %>%
+    summarize(Count=n()) %>%
+    filter(!is.na(Cluster)) %>%
+    mutate(Proportion=Count/sum(Count)) %>%
+    mutate(medAge=sum(`Age Group` * Count)/sum(Count)) %>%
+    ggplot(aes(x=`Age Group`, y=Proportion, group=FB, color=FB, fill=FB)) +
+    geom_col(position = "dodge") +
+    geom_vline(aes(xintercept=medAge, color=FB), linetype=2) +
     facet_grid(Cluster ~ YEAR) +
     theme_classic()
