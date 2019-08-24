@@ -19,3 +19,24 @@
  - Contrast working age population for place of work compared to working age population by residence  
  - Loads data (on lehd site)(logitudinal employer household dynamics) 
  - what are the opportunities (raj chetty) for children of immigrants by race  
+
+# Things to do
+ - Scott Allard movement of jobs and people from urban to suburban "Geographic mapping of the poor" google its
+ - Check out inequality work Abigail Cooke
+ - Pull in income data
+ - Check out the chnages in migration and age are they correlated
+ - Build on specfic aims for the dissertation and background
+ - Background choyuld be lit review and EDA
+ - Respond to Sara about the MPC Differential data opportunity
+ - Book liesa Keester wealth inequality book which started as a dissertation
+
+# Dissertation work
+ - First Step there is something real in terms of changes of age and geography
+ - Shift in the population over time
+ - Worry about later what the drivers for these things are the first paper should be about just what is happening
+ - Build an NIH proposal grant of this work to send to comittee
+    - specific aims
+    - signfif
+    - backgraound
+    - preliminary work
+
