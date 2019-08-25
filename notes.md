@@ -18,4 +18,12 @@
  - redistribution as a function of aging population  
  - Contrast working age population for place of work compared to working age population by residence  
  - Loads data (on lehd site)(logitudinal employer household dynamics) 
- - what are the opportunities (raj chetty) for children of immigrants by race  
+ - what are the opportunities (raj chetty) for children of immigrants by race 
+
+# Notes on present
+ - Use 1 year change
+ - When did you come to the united states?
+ - Jacklyn Hwang 2015 gentrification and FB pops
+ - Expand geographies
+ - Compare similar city types Example: Houston and LA
+ - Check out Synthetic cohort approaches for estimating mobility

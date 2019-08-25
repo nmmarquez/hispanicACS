@@ -2,7 +2,12 @@
 .Rhistory
 .RData
 .Ruserdata
+*.RDS
+*.Rds
+*.rds
 *.pdf
+presentations/theoryMigrationClass/presentation_files/*
+presentations/theoryMigrationClass/libs/*
 readings/*
 *.docx
 cleaned_data/*
