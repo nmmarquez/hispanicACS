@@ -1,0 +1,154 @@
+---
+title: "Changes in Geographic Dispersion of Mexican Migrants in the United States"
+author: "Neal Marquez"
+institute: "University of Washington"
+date: "`r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+# Background
+
+- Declining Population of Mexican Migrants in the US
+- Shifting geographic distributions of Mexican migrants
+- Aging population of Mexican migrants
+- Potential labor force participation shifts
+
+---
+
+# Review on Theories of New Destinations
+
+- Saturation of the job market in traditional destinations
+- Change in political/social attitude toward migrants in traditional destinations
+- Labor demands in new locations
+- Changes in the border patrolling
+- Changes in the demographics of migrants
+
+---
+
+# Characteristics of New Migrant Locations
+
+- New source locations
+- Younger population than the traditional location migrants
+- New markets in multiple industries
+
+---
+
+# Age Comparisons of Migrants
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.height=4, dev='svg')
+```
+
+```{r include=FALSE}
+library(ggplot2)
+histogramNat <- readRDS("../../results/histogramNational.Rds")
+ipumsPlot <- readRDS("../../results/ipumsPlot.Rds")
+
+```
+
+
+```{r}
+histogramNat$mexRegional +
+  theme(strip.text.y = element_text(size=4.5))
+```
+
+---
+
+# Regional Comparisons to Native Population
+
+```{r}
+histogramNat$regionalCompare +
+  theme(strip.text.y = element_text(size=4.5))
+```
+
+---
+
+# Research Questions
+
+- How have changes in the demographics of Mexican migrants altered geographic distributions
+- What are the driving factors of movement in an aging population
+    - Most theoretical models deal with young populations
+- How does this aging/relocating effect labor force participation
+    
+---
+
+# Shifting Age structure
+
+```{r}
+ipumsPlot$hist1 +
+  theme(strip.text.y = element_text(size=5))
+```
+
+---
+
+# Shifting Age structure
+
+```{r}
+ipumsPlot$hist2 +
+  theme(strip.text.y = element_text(size=5))
+```
+
+---
+
+# Shifting Age structure
+
+```{r}
+ipumsPlot$hist3 +
+  theme(strip.text.y = element_text(size=5))
+```
+
+---
+
+# Declining West Coast Population
+
+```{r}
+ipumsPlot$totalPopGrowth
+```
+
+---
+
+# Declining West Coast Population
+
+```{r}
+ipumsPlot$hispPopGrowth
+```
+
+---
+# Population Decline Correlations
+
+```{r}
+ipumsPlot$otherMexGrow
+```
+
+---
+
+# Population Decline Correlations
+
+```{r}
+ipumsPlot$chicMexGrow
+```
+
+---
+
+# Population Decline Correlations
+
+```{r}
+ipumsPlot$mexStatePeak +
+  theme_classic()
+```
+
+---
+
+# Next Steps
+
+- Check how changes in migrant populations alter age structure
+- Adjust for expectations given mortality rates of Hispanics
+- Try and find data on location pathways (stepwise migration)
+- How does LFP by sector shift with increases in migrant population
+- Test the relationship between housing market and labor sector shifts and migrant increases

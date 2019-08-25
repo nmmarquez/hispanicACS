@@ -41,3 +41,11 @@
     - backgraound
     - preliminary work
 
+# Notes on present
+ - Use 1 year change
+ - When did you come to the united states?
+ - Jacklyn Hwang 2015 gentrification and FB pops
+ - Expand geographies
+ - Compare similar city types Example: Houston and LA
+ - Check out Synthetic cohort approaches for estimating mobility
+
