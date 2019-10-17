@@ -72,7 +72,7 @@ wikiTables <- paste0(
     as_tibble() %>%
     filter(State %in% c("WA", "CA", "OR"))
 
-DF <- as_tibble(fread("./data/usa_00003.csv")) %>%
+allDF <- as_tibble(fread("./data/usa_00004.csv")) %>%
     filter(STATEFIP %in% wikiTables$STATEFIP) %>%
     mutate(Race=case_when(
         HISPAN %in% 1:4 ~ "Hispanic",
@@ -95,10 +95,13 @@ DF <- as_tibble(fread("./data/usa_00003.csv")) %>%
         TRUE ~ "Other"
     )) %>%
     mutate(FB=YRIMMIG != 0) %>%
-    mutate(`Age Group`=(cut_interval(AGE, length=5, labels=F)-1)*5) %>%
+    mutate(`Age Group`=(cut_interval(AGE, length=5, labels=F)-1)*5) 
+
+DF <- allDF %>%
     filter(AGE > 15 & AGE <= 60)
 
-spDF <- read_sf("./data/ipums_cpuma0010.shp") %>%
+# Download from https://usa.ipums.org/usa/volii/boundaries.shtml
+spDF <- read_sf("./data/ipumsCPUMA/ipums_cpuma0010.shp") %>%
     filter(State %in% c("California", "Washington", "Oregon")) %>%
     st_transform(crs="+proj=longlat +datum=WGS84")
 

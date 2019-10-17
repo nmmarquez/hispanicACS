@@ -6,13 +6,13 @@ library(sf)
 library(XML)
 library(httr)
 
-setwd("~/Documents/hispanicACS/data/")
+if(!file.exists("data/usa_00007.csv")){
+    ddi <- read_ipums_ddi("data/usa_00007.xml")
+    data <- read_ipums_micro(ddi)
+    write_csv(data, "data/usa_00007.csv")
+}
 
-#ddi <- read_ipums_ddi("usa_00004.xml")
-#data <- read_ipums_micro(ddi)
-#write_csv(data, "./usa_00004.csv")
-
-DF <- as_tibble(fread("./usa_00003.csv")) %>%
+DF <- as_tibble(fread("data/usa_00007.csv")) %>%
     mutate(Race=case_when(
         HISPAN %in% 1:4 ~ "Hispanic",
         RACE == 1 ~ "White",
@@ -21,7 +21,7 @@ DF <- as_tibble(fread("./usa_00003.csv")) %>%
     mutate(FB=YRIMMIG != 0) %>%
     mutate(`Age Group`=(cut_interval(AGE, length=5, labels=F)-1)*5)
 
-#spDF <- read_sf("./ipumsShape/ipums_puma_2010.shp")
+#spDF <- read_sf("data/ipumsShape/ipums_puma_2010.shp")
 
 wikiTables <- paste0(
     "https://en.wikipedia.org/wiki/",
@@ -160,4 +160,4 @@ plotList$regionalCompare <- DF %>%
     facet_grid(Cluster ~ YEAR) +
     theme_classic()
 
-saveRDS(plotList, file="../results/histogramNational.Rds")
+saveRDS(plotList, file="./results/histogramNational.Rds")
