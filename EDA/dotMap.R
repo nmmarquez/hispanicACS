@@ -28,14 +28,27 @@ varsDF <- load_variables(2017, "acs5") %>%
         variable == "B03002_001" ~ "Total",
         grepl("White", label) ~ "White",
         grepl("Black", label) ~ "Black",
-        grepl("Indian|Asian|Pacific", label) ~ "Asian",
+        grepl("Asian|Pacific", label) ~ "Asian",
         variable == "B03002_012" ~ "Hispanic",
+        TRUE ~ "Other"))
+
+varsCenDF <- load_variables(2010, "sf1") %>%
+    filter(concept == "HISPANIC OR LATINO ORIGIN BY RACE") %>%
+    select(-concept) %>%
+    rename(variable = name) %>%
+    .[c(1, 3:10),] %>%
+    mutate(race = case_when(
+        variable == "P005001" ~ "Total",
+        grepl("White", label) ~ "White",
+        grepl("Black", label) ~ "Black",
+        grepl("Asian|Pacific", label) ~ "Asian",
+        variable == "P005010" ~ "Hispanic",
         TRUE ~ "Other"))
 
 # Use the tidycensus to pull in their latest available 5 year ACS since it has 
 # the most detailed geographies outside of census years
 popAcsDF <- get_acs(
-    state = "CA", county = c("Orange", "Los Angeles"), 
+    state = "WA", county = c("King", "Pierce"), 
     geography="block group", # I want county level data
     variables=varsDF$variable, # iwant the variables from this list
     year=2017, # from the 2014 acs
@@ -67,22 +80,22 @@ polyDF <- popAcsDF %>%
 
 # For each block group race we want to sample some points. This takes a long 
 # time so lets do it once and be done with it.
-if(!file.exists("data/pointDF.Rds")){
+if(!file.exists("data/pointWADF.Rds")){
     pointDF <- st_sample(polyDF, polyDF$N)
-    saveRDS(pointDF, "data/pointDF.Rds")
+    saveRDS(pointDF, "data/pointWADF.Rds")
 }
 
-pointDF <- readRDS("data/pointDF.Rds")
+pointDF <- readRDS("data/pointWADF.Rds")
 sfDF <- st_sf(
     tibble(race = unlist(lapply(1:nrow(polyDF), function(i){
         rep(polyDF$race[i], polyDF$N[i])}))), 
     geometry = pointDF) %>%
     mutate(clrs=case_when(
-        race == "White" ~ "Red",
-        race == "Black" ~ "Blue",
-        race == "Asian" ~ "Purple",
-        race == "Hispanic" ~ "Green",
-        TRUE ~ "Yellow"
+        race == "White" ~ "Blue",
+        race == "Black" ~ "Green",
+        race == "Asian" ~ "Red",
+        race == "Hispanic" ~ "Yellow",
+        TRUE ~ "Brown"
     ))
 
 minisfDF <- sample_frac(sfDF, .1)
@@ -90,11 +103,34 @@ colMat <- t(col2rgb(minisfDF$clrs))/255
 
 #options(viewer = NULL) # view in browser
 
-m <- leaflet() %>%
+(m <- leaflet() %>%
     addProviderTiles(provider = providers$CartoDB.DarkMatter) %>%
     addGlPoints(
         data = minisfDF, group = "pts", opacity = .3,
         weight = 3, color = colMat) %>%
-    setView(lng = -118.2, lat = 34.0, zoom = 8)
+    setView(lng = -122.3, lat = 47.6, zoom = 8))
 
-mapshot(m, "data/dotmap.html", selfcontained = FALSE)
+mapshot(m, "data/dotmapWA.html", selfcontained = FALSE)
+
+popAcsDF
+
+popCenDF <- get_decennial(
+    state = "WA", county = c("King", "Pierce"), 
+    geography="county", # I want county level data
+    variables=varsCenDF$variable, # iwant the variables from this list
+    year=2010, # from the 2014 acs
+    geometry=TRUE) %>%
+    left_join(select(varsCenDF, variable, race))
+
+polyCenDF <- popCenDF %>%
+    filter(race != "Total") %>%
+    group_by(race) %>%
+    summarize(N=sum(value)) %>%
+    filter(N != 0 & !is.na(N))
+
+polyCenDF$N /sum(polyCenDF$N)
+polyDF %>%
+    group_by(race) %>%
+    summarize(N=sum(N)) %>%
+    pull(N) %>%
+    `/`(sum(.))
