@@ -48,7 +48,7 @@ varsCenDF <- load_variables(2010, "sf1") %>%
 # Use the tidycensus to pull in their latest available 5 year ACS since it has 
 # the most detailed geographies outside of census years
 popAcsDF <- get_acs(
-    state = "WA", county = c("King", "Pierce"), 
+    state = "CO", county = c("Denver"), 
     geography="block group", # I want county level data
     variables=varsDF$variable, # iwant the variables from this list
     year=2017, # from the 2014 acs
@@ -80,12 +80,12 @@ polyDF <- popAcsDF %>%
 
 # For each block group race we want to sample some points. This takes a long 
 # time so lets do it once and be done with it.
-if(!file.exists("data/pointWADF.Rds")){
+if(!file.exists("data/pointCODF.Rds")){
     pointDF <- st_sample(polyDF, polyDF$N)
-    saveRDS(pointDF, "data/pointWADF.Rds")
+    saveRDS(pointDF, "data/pointCODF.Rds")
 }
 
-pointDF <- readRDS("data/pointWADF.Rds")
+pointDF <- readRDS("data/pointCODF.Rds")
 sfDF <- st_sf(
     tibble(race = unlist(lapply(1:nrow(polyDF), function(i){
         rep(polyDF$race[i], polyDF$N[i])}))), 
@@ -110,7 +110,7 @@ colMat <- t(col2rgb(minisfDF$clrs))/255
         weight = 3, color = colMat) %>%
     setView(lng = -122.3, lat = 47.6, zoom = 8))
 
-mapshot(m, "data/dotmapWA.html", selfcontained = FALSE)
+mapshot(m, "data/dotmapCO.html", selfcontained = FALSE)
 
 popAcsDF
 

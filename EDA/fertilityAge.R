@@ -1,10 +1,3 @@
-# We want to compare the probability of being a recent migrant among different 
-# ethnic groups and national identities in the united States while adjusting for
-# the age at which individuals are migrating. Because the age of Mexican 
-# nationals living in the United States is older than the adult population in
-# the United States we want to make sure taht we are accurately capturing
-# patterns.
-
 rm(list=ls())
 library(tidyverse)
 library(ipumsr)
@@ -102,68 +95,70 @@ allDF <- DF %>%
     mutate(`Age Group`=(cut_interval(AGE, length=5, labels=F)-1)*5) %>%
     left_join(stateRegions, by="STATEFIP") %>%
     as_survey(weights = PERWT)
-    #as_survey(ids = CLUSTER, weights = PERWT, strata = STRATAYEAR, nest = TRUE)
+#as_survey(ids = CLUSTER, weights = PERWT, strata = STRATAYEAR, nest = TRUE)
 
-if(!file.exists("./results/migRaceDF.Rds")){
-    migRaceDF <- allDF %>%
+if(!file.exists("./results/fertRaceDF.Rds")){
+    fertRaceDF <- allDF %>%
+        filter(FERTYR %in% 1:2) %>%
+        mutate(FERTYR = FERTYR - 1) %>%
         rename(Age_Group = `Age Group`) %>%
         group_by(Age_Group, Race, YEAR, Cluster) %>%
-        mutate(hasMigrated = MIGCOUNTY1 != 0) %>%
-        summarize(MigRate = survey_mean(
-            hasMigrated, proportion = TRUE, vartype = "ci", na.rm = TRUE)) %>% 
-        filter(!is.na(MigRate))
-
-    saveRDS(migRaceDF, "./results/migRaceDF.Rds")
+        summarize(FertRate = survey_mean(
+            FERTYR, proportion = TRUE, vartype = "ci", na.rm = TRUE)) %>% 
+        filter(!is.na(FertRate))
+    
+    saveRDS(fertRaceDF, "./results/fertRaceDF.Rds")
 }
 
-if(!file.exists("./results/migOrigDF.Rds")){
-    migOrigDF <- allDF %>%
+if(!file.exists("./results/fertOrigDF.Rds")){
+    fertOrigDF <- allDF %>%
+        filter(FERTYR %in% 1:2) %>%
+        mutate(FERTYR = FERTYR - 1) %>%
         rename(Age_Group = `Age Group`) %>%
         group_by(Age_Group, BPLCR, YEAR, Cluster) %>%
-        mutate(hasMigrated = MIGCOUNTY1 != 0) %>%
-        summarize(MigRate = survey_mean(
-            hasMigrated, proportion = TRUE, vartype = "ci", na.rm = TRUE)) %>% 
-        filter(!is.na(MigRate))
+        summarize(FertRate = survey_mean(
+            FERTYR, proportion = TRUE, vartype = "ci", na.rm = TRUE)) %>% 
+        filter(!is.na(FertRate))
     
-    saveRDS(migOrigDF, "./results/migOrigDF.Rds")
+    saveRDS(fertOrigDF, "./results/fertOrigDF.Rds")
 }
 
 
-(migRatesRace <- migRaceDF %>%
-    filter(Age_Group <= 60 & Race != "Asian" & Age_Group >=10) %>%
-    ggplot(aes(
-        x=Age_Group, y=MigRate, color=Race, group=Race, fill=Race)) +
-    geom_line() +
-    geom_ribbon(aes(ymin=MigRate_low, ymax=MigRate_upp, color=NULL), alpha=.3) +
-    theme_classic() +
-    facet_grid(Cluster~YEAR) +
-    labs(y="Migration Rate", title = "Moved From One County to Another"))
+(fertRatesRace <- fertRaceDF %>%
+        filter(Age_Group <= 60 & Race != "Asian" & Age_Group >=15) %>%
+        ggplot(aes(
+            x=Age_Group, y=FertRate, color=Race, group=Race, fill=Race)) +
+        geom_line() +
+        geom_ribbon(aes(ymin=FertRate_low, ymax=FertRate_upp, color=NULL), alpha=.3) +
+        theme_classic() +
+        facet_grid(Cluster~YEAR) +
+        labs(y="Fertility Rate", title = "Had a Child in the Past Year"))
 
-(migRatesOrig <- migOrigDF %>%
-    filter(Age_Group <= 55 & Age_Group >=10) %>%
-    filter(BPLCR %in% c("Mexico", "Native Hispanic", "Native White")) %>%
-    ggplot(aes(
-        x=Age_Group, y=MigRate, color=BPLCR, group=BPLCR, fill=BPLCR)) +
-    geom_line() +
-    geom_ribbon(aes(ymin=MigRate_low, ymax=MigRate_upp, color=NULL), alpha=.3) +
-    theme_classic() +
-    facet_grid(Cluster~YEAR) +
-    labs(y="Migration Rate", title = "Moved From One County to Another"))
+(fertRatesOrig <- fertOrigDF %>%
+        filter(Age_Group <= 55 & Age_Group >=15) %>%
+        filter(BPLCR %in% c("Mexico", "Native Hispanic", "Native White")) %>%
+        ggplot(aes(
+            x=Age_Group, y=FertRate, color=BPLCR, group=BPLCR, fill=BPLCR)) +
+        geom_line() +
+        geom_ribbon(aes(ymin=FertRate_low, ymax=FertRate_upp, color=NULL), alpha=.3) +
+        theme_classic() +
+        facet_grid(Cluster~YEAR) +
+        labs(y="Fertility Rate", title = "Had a Child in the Past Year"))
 
 (migRatesOrig <- allDF %>%
-    rename(Age_Group = `Age Group`) %>%
-    group_by(Age_Group, BPLCR, YEAR) %>%
-    mutate(hasMigrated = MIGCOUNTY1 != 0) %>%
-    summarize(MigRate = survey_mean(
-        hasMigrated, proportion = TRUE, vartype = "ci", na.rm = TRUE)) %>% 
-    filter(!is.na(MigRate)) %>%
-    ggplot(aes(
-        x=Age_Group, y=MigRate, color=BPLCR, group=BPLCR, fill=BPLCR)) +
-    geom_line() +
-    geom_ribbon(aes(ymin=MigRate_low, ymax=MigRate_upp, color=NULL), alpha=.3) +
-    theme_classic() +
-    facet_wrap(~YEAR) +
-    labs(y="Migration Rate", title = "Moved From One County to Another"))
+        rename(Age_Group = `Age Group`) %>%
+        group_by(Age_Group, BPLCR, YEAR) %>%
+        mutate(hasMigrated = MIGCOUNTY1 != 0) %>%
+        summarize(MigRate = survey_mean(
+            hasMigrated, proportion = TRUE, vartype = "ci", na.rm = TRUE)) %>% 
+        filter(!is.na(MigRate)) %>%
+        ggplot(aes(
+            x=Age_Group, y=MigRate, color=BPLCR, group=BPLCR, fill=BPLCR)) +
+        geom_line() +
+        geom_ribbon(aes(ymin=MigRate_low, ymax=MigRate_upp, color=NULL), alpha=.3) +
+        theme_classic() +
+        facet_wrap(~YEAR) +
+        labs(y="Migration Rate", title = "Moved From One County to Another"))
 
 ggplotly(migRatesRace)
 ggplotly(migRatesOrig)
