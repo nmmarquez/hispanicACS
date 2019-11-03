@@ -1,0 +1,52 @@
+---
+title: "Drivers of Intra-national Migration of Hispanic in The United States"
+author: "Neal Marquez"
+institute: "University of Washington"
+date: "`r Sys.Date()`"
+output:
+    xaringan::moon_reader:
+    lib_dir: libs
+nature:
+    highlightStyle: github
+highlightLines: true
+countIncrementalSlides: false
+---
+
+# Background: Latin-American Migration to the United States  
+<!-- Migration from Mexico to the United States accounts for the largest stock of Migrants currently in the US, and changes in demographics, relative production of domestic goods, and international policies have played a role in the total migrant count over time.-->
+Here we ant to talk about how patterns of migration have increased due to a number of factors that relate to changing relative wealth distributions, differences in the age patterns between the two populations, and changes in laws between the two countries. Because of this people have been interested in what motivates migration and the economic and demographic role that these migrants enact once entering the country. 
+
+
+- Gonzalez Barera 2013 Image of Mexican national stock
+
+---
+# Background: The changing nature of migrants
+<!-- Mexican Migration does not represnt a monolith, in part because of the changing nature of relationships between MX and the US the who where and why of migration has shifted even if the large scale players (MX and US) have remained the same. Mention messey and the Mexican consulate study, Durand and the change bi-national flows between locations in MX and the US as well as Garip and the changing demographics of migrants.-->
+
+---
+
+# Background: Diversification of Migrant Origin    
+
+- The Countries who are actors in migration to the US from Latin America are changing  
+- Continued change in the demographic profile and motivations for migration  
+- Increase in interational Stepwise Migration  
+- Latin American Migration Project  
+- How has migration alterd in light of its persistance and diversification  
+
+---
+
+# Background: Native Born Hispanics, Assimilation, and Racialization
+
+- Interest in migration continues with inter-generational studies  
+- Descendants of Hispanic migrants often exhiibit different demographic and socio-economic patterns than their non-Hispanic peers  
+- What are the driving factors between the differnces observed between Hispanic born populations and other racial/ethnic groups
+   - Theories of Assimilation  
+   - Theories of Intergenerational-Transmission  
+   - Theories of Context  
+
+
+---
+
+# Review on Theories of New Destinations
+
+- 

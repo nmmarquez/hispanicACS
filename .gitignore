@@ -8,6 +8,8 @@
 *.pdf
 presentations/theoryMigrationClass/presentation_files/*
 presentations/theoryMigrationClass/libs/*
+presentations/maxPlanckDisertation/presentation_files/*
+presentations/maxPlanckDisertation/libs/*
 readings/*
 *.docx
 cleaned_data/*
