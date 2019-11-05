@@ -129,7 +129,47 @@ if(!file.exists("./results/migOrigDF.Rds")){
 }
 
 
-(migRatesRace <- migRaceDF %>%
+migOrigDF <- readRDS("./results/migOrigDF.Rds")
+migRaceDF <- readRDS("./results/migRaceDF.Rds")
+
+migRaceDF %>%
+    filter(Race != "Black" & (Cluster %in% c("South", "Border Land"))) %>%
+    filter(Age_Group <= 60 & Race != "Asian" & Age_Group >=10) %>%
+    ggplot(aes(
+        x=Age_Group, y=MigRate, color=Race, group=Race, fill=Race)) +
+    geom_line() +
+    geom_ribbon(aes(ymin=MigRate_low, ymax=MigRate_upp, color=NULL), alpha=.3) +
+    theme_classic() +
+    facet_grid(Cluster~YEAR) +
+    labs(y="Migration Rate", title = "Moved From One County to Another")
+
+migOrigDF %>%
+    filter(Age_Group <= 55 & Age_Group >=10) %>%
+    filter(BPLCR %in% c("Mexico", "Native Hispanic", "Native White")) %>% 
+    filter(Cluster %in% c("South", "Border Land")) %>%
+    ggplot(aes(
+        x=Age_Group, y=MigRate, color=BPLCR, group=BPLCR, fill=BPLCR)) +
+    geom_line() +
+    geom_ribbon(aes(ymin=MigRate_low, ymax=MigRate_upp, color=NULL), alpha=.3) +
+    theme_classic() +
+    facet_grid(Cluster~YEAR) +
+    labs(y="Migration Rate", title = "Moved From One County to Another")
+
+migOrigDF %>%
+    filter(Age_Group <= 55 & Age_Group >=10) %>%
+    filter(BPLCR %in% c("Mexico", "Native Hispanic")) %>%
+    filter(Cluster %in% c("NorthWest", "SouthEast")) %>%
+    ggplot(aes(
+        x=Age_Group, y=MigRate, color=Cluster, group=Cluster, fill=Cluster)) +
+    geom_line() +
+    geom_ribbon(aes(ymin=MigRate_low, ymax=MigRate_upp, color=NULL), alpha=.3) +
+    theme_classic() +
+    facet_grid(BPLCR~YEAR) +
+    labs(y="Migration Rate", title = "Moved From One County to Another")
+
+
+https://manjaro.org/https://manjaro.org/https://manjaro.org/https://manjaro.org/https://manjaro.org/https://manjaro.org/https://manjaro.org/https://manjaro.org/https://manjaro.org/https://manjaro.org/https://manjaro.org/(migRatesRace <- migRaceDF %>%
+    filter(Race != "Black") %>%
     filter(Age_Group <= 60 & Race != "Asian" & Age_Group >=10) %>%
     ggplot(aes(
         x=Age_Group, y=MigRate, color=Race, group=Race, fill=Race)) +
@@ -150,20 +190,24 @@ if(!file.exists("./results/migOrigDF.Rds")){
     facet_grid(Cluster~YEAR) +
     labs(y="Migration Rate", title = "Moved From One County to Another"))
 
-(migRatesOrig <- allDF %>%
-    rename(Age_Group = `Age Group`) %>%
-    group_by(Age_Group, BPLCR, YEAR) %>%
-    mutate(hasMigrated = MIGCOUNTY1 != 0) %>%
-    summarize(MigRate = survey_mean(
-        hasMigrated, proportion = TRUE, vartype = "ci", na.rm = TRUE)) %>% 
-    filter(!is.na(MigRate)) %>%
-    ggplot(aes(
-        x=Age_Group, y=MigRate, color=BPLCR, group=BPLCR, fill=BPLCR)) +
-    geom_line() +
-    geom_ribbon(aes(ymin=MigRate_low, ymax=MigRate_upp, color=NULL), alpha=.3) +
-    theme_classic() +
-    facet_wrap(~YEAR) +
-    labs(y="Migration Rate", title = "Moved From One County to Another"))
+list(migRatesRace = migRatesRace, mmigRatesOrig = migRatesOrig) %>%
+    saveRDS("results/migAgePlots.Rds")
 
-ggplotly(migRatesRace)
-ggplotly(migRatesOrig)
+# (migRatesOrig <- allDF %>%
+#     rename(Age_Group = `Age Group`) %>%
+#     group_by(Age_Group, BPLCR, YEAR) %>%
+#     mutate(hasMigrated = MIGCOUNTY1 != 0) %>%
+#     summarize(MigRate = survey_mean(
+#         hasMigrated, proportion = TRUE, vartype = "ci", na.rm = TRUE)) %>% 
+#     filter(!is.na(MigRate)) %>%
+#     ggplot(aes(
+#         x=Age_Group, y=MigRate, color=BPLCR, group=BPLCR, fill=BPLCR)) +
+#     geom_line() +
+#     geom_ribbon(aes(ymin=MigRate_low, ymax=MigRate_upp, color=NULL), alpha=.3) +
+#     theme_classic() +
+#     facet_wrap(~YEAR) +
+#     labs(y="Migration Rate", title = "Moved From One County to Another"))
+# 
+# ggplotly(migRatesRace)
+# ggplotly(migRatesOrig)
+
