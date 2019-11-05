@@ -140,7 +140,7 @@ ipumsPlot$chicMexGrow
 
 ```{r}
 ipumsPlot$mexStatePeak +
-  theme_classic()
+  theme_void()
 ```
 
 ---
