@@ -1,0 +1,178 @@
+---
+title: "Drivers of Intra-national Migration of Hispanics in The United States"
+author: "Neal Marquez"
+institute: "University of Washington"
+date: "`r Sys.Date()`"
+output:
+    xaringan::moon_reader:
+    lib_dir: libs
+nature:
+    highlightStyle: github
+highlightLines: true
+countIncrementalSlides: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, fig.height=4, dev='svg')
+```
+
+```{r include=FALSE}
+library(ggplot2)
+histogramNat <- readRDS("../../results/histogramNational.Rds")
+ipumsPlot <- readRDS("../../results/ipumsPlot.Rds")
+migPlot <- readRDS("../../results/migAgePlots.Rds")
+```
+
+
+class: inverse, center, middle
+
+# Background
+
+---
+
+
+# Latin American Migration to the United States  
+<!-- Migration from Mexico to the United States accounts for the largest stock of Migrants currently in the US, and changes in demographics, relative production of domestic goods, and international policies have played a role in the total migrant count over time.-->
+<!-- Here we ant to talk about how patterns of migration have increased due to a number of factors that relate to changing relative wealth distributions, differences in the age patterns between the two populations, and changes in laws between the two countries. Because of this people have been interested in what motivates migration and the economic and demographic role that these migrants enact once entering the country.  -->
+![img](https://www.pewresearch.org/hispanic/wp-content/uploads/sites/5/2013/05/PHC-2013-05-mexico-1.png)
+
+
+---
+# Heterogeniety of Migration Process 
+<!-- Mexican Migration does not represnt a monolith, in part because of the changing nature of relationships between MX and the US the who where and why of migration has shifted even if the large scale players (MX and US) have remained the same. Mention messey and the Mexican consulate study, Durand and the change bi-national flows between locations in MX and the US as well as Garip and the changing demographics of migrants.-->
+![img2](nihms504667f1.jpg)
+
+
+---
+
+# Diversification of Migrant Backgrounds   
+
+- The Countries who are actors in migration to the US from Latin America are changing  
+- Continued change in the demographic profile and motivations for migration  
+- Increase in interational Stepwise Migration  
+- Latin American Migration Project  
+- How has migration alterd in light of its persistance and diversification  
+
+<!-- --- -->
+
+<!-- # Background: Native Born Hispanics, Assimilation, and Racialization -->
+
+<!-- - Interest in migration effects continues with inter-generational studies -->
+<!-- - Descendants of Hispanic migrants often exhiibit different demographic and socio-economic patterns than their non-Hispanic peers -->
+<!-- - What are the driving factors between the differnces observed between Hispanic born populations and other racial/ethnic groups -->
+<!--    - Theories of Assimilation (Cultural Drivers) -->
+<!--    - Theories of Intergenerational-Transmission (Wealth/Health/Edu Mobility) -->
+<!--    - Theories of Context (How are indivduals perceived and actualized) -->
+
+---
+
+# The Importance of Context on SES and Demographic Differneces  
+
+- "Contextual forces structure socioeconomic opportunities for minorities above and beyond individual and family level characteristics" -(Massey Denton 1993)  
+- Segregation of populations (South, Crowder, Chavez 2005)  
+- Housing Stock, Residential Segregation, Minority Composition (Flippen 2010)  
+- "...effect of immigrant replenishment on the boundaries that distinguish ethnic groups, and not the cultural "stuff" these boundaries enclose" (Jimenez 2008)  
+- Contextual factors alter the landscape of SES, incuding demographic, differentiels between groups  
+
+
+---
+
+class: inverse, center, middle
+
+# Migration, Mobility, and Context
+
+---
+
+# Hypothesis  
+
+- Contextual factors act on and are acted on by processes of continued racialization of Hispanics in the US and create differential patterns of demographic phenomena  
+- Contextual factors differ greatly by geography and contribute to demographic differences between locations  
+- This may be especially important in processes of geographic mobility where a heavy focus has been placed on migrant characteristics  
+- Contextual factors can have an effect on decision making for mobility or lack there of  
+  - Oportunities for resource acuumulation enabling migration  
+  - Housing market opportunities or changes  
+  - Change in social network structure  
+  - Changes im economic opportunities
+  
+<!-- This might be in part bevcause individuals see migration as a single process which seems to be rarely the case -->
+
+<!-- Inroduce gender here -->
+---
+
+# Evidence of Contextual Factors Influence on Demographics  
+
+- Geographic Inequality in U.S. Household Water Insecurity (Deitz Meehan 2019)  
+- Geographical, racial and socio-economic variation in life expectancy (Mariotto 2018)  
+- Spatial Variation in the Hispanic Paradox (Brazil 2017)  
+- Migration and Spatial Assimilation (South Crowder Chavez 2005)  
+
+---
+
+# How can we test this with Mobilty?  
+
+
+---
+
+class: inverse, center, middle
+
+# Eploratory Data Analysis
+
+---
+
+# Geographic Differences in Recent Mobility  
+
+```{r}
+migPlot$migRatesRace
+```
+
+---
+
+# Geographic Differences in Recent Mobility
+
+```{r}
+migPlot$mmigRatesOrig
+```
+
+---
+
+# Population Growth  
+
+```{r}
+ipumsPlot$otherMexGrow
+``` 
+
+---
+
+# Population Growth 
+
+```{r}
+ipumsPlot$chicMexGrow
+``` 
+
+---
+
+# Population Growth  
+
+```{R}
+ipumsPlot$mexStatePeak
+``` 
+
+---
+
+# New Data Sources
+
+![ns](https://depts.washington.edu/thinklab/images/portfolio/feilong01.jpg)
+
+---
+
+# Moving Forward  
+
+- Incorporating contextual measures to account for geographic differences  
+    - Proportion Hispanic  
+    - History of Migrant communities  
+    - Measures of co-ethnic groups  
+    - Migration related policies  
+    - Segregation measures  
+- Measuring bilateral flows rather than changes in stocks  
+    - What locations share networks and are they the same among sub-groups  
+- Assessing use of space and small scale mobility  
