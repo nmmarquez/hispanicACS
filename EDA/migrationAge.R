@@ -168,7 +168,7 @@ migOrigDF %>%
     labs(y="Migration Rate", title = "Moved From One County to Another")
 
 
-https://manjaro.org/https://manjaro.org/https://manjaro.org/https://manjaro.org/https://manjaro.org/https://manjaro.org/https://manjaro.org/https://manjaro.org/https://manjaro.org/https://manjaro.org/https://manjaro.org/(migRatesRace <- migRaceDF %>%
+(migRatesRace <- migRaceDF %>%
     filter(Race != "Black") %>%
     filter(Age_Group <= 60 & Race != "Asian" & Age_Group >=10) %>%
     ggplot(aes(

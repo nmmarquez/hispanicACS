@@ -6,58 +6,9 @@ library(sf)
 library(XML)
 library(httr)
 library(leaflet)
+library(plotly)
 
 plotList <- list()
-
-ggplotRegression <- function (formula, data) {
-    fit <- lm(formula, data)
-    x_var <- paste0('`', names(fit$model)[2], '`')
-    y_var <- paste0('`', names(fit$model)[1], '`')
-    ggplot(data, aes_string(x = x_var, y = y_var)) + 
-        geom_point(aes(color=Name)) +
-        stat_smooth(method = "lm", col = "red") +
-        geom_text(
-            label = paste("R2 = ",signif(summary(fit)$r.squared, 5),
-                          "Intercept =",signif(fit$coef[[1]],5 ),
-                          " Slope =",signif(fit$coef[[2]], 5)),
-            x=-Inf, y=Inf, hjust=0, vjust=1)
-        
-}
-
-spdf2leaf <- function(df, col="data", label=NULL, reverse=TRUE, zcenter=FALSE){
-    lab_label <- ifelse(is.null(label), col, label)
-    cols <- grep("geometry", names(df), value = T, invert = T)
-    df <- mutate(df, data = as.data.frame(df)[,col])
-    
-    # pop up info
-    popup <- sapply(cols, function(c){
-        paste0(c, ": ", as.data.frame(df)[,c])}) %>%
-        apply(1, function(z) paste0(z, collapse = "<br>"))
-    
-    # color palette
-    pal <- colorNumeric(
-        palette = "Spectral", 
-        domain=as.data.frame(df)$data, 
-        reverse=reverse)
-    if(zcenter){
-        pal <- colorNumeric(
-            palette = "Spectral", 
-            domain=c(
-                -max(abs(as.data.frame(df)$data)),
-                max(abs(as.data.frame(df)$data))),
-            reverse=reverse)
-    }
-    
-    
-    # see map
-    map1<-leaflet() %>%
-        addProviderTiles("CartoDB.Positron") %>%
-        addPolygons(data=df, fillColor=~pal(data), color="#b2aeae", weight=0.3,
-                    fillOpacity=0.7, smoothFactor=0.2, popup=popup) %>%
-        addLegend("bottomright", pal=pal, values=as.data.frame(df)$data,
-                  title = lab_label, opacity = 1)
-    map1
-}
 
 wikiTables <- paste0(
     "https://en.wikipedia.org/wiki/",
@@ -70,7 +21,7 @@ wikiTables <- paste0(
     mutate(STATEFIP=as.numeric(`Numeric code`)) %>%
     rename(State=`Alpha code`) %>%
     as_tibble() %>%
-    filter(State %in% c("WA", "CA", "OR"))
+    filter(State %in% state.abb)
 
 allDF <- as_tibble(fread("./data/usa_00004.csv")) %>%
     filter(STATEFIP %in% wikiTables$STATEFIP) %>%
@@ -98,17 +49,22 @@ allDF <- as_tibble(fread("./data/usa_00004.csv")) %>%
     mutate(FB=YRIMMIG != 0) %>%
     mutate(`Age Group`=(cut_interval(AGE, length=5, labels=F)-1)*5)
 
-DF <- allDF %>%
-    filter(AGE > 15 & AGE <= 60)
 
-
-allDF %>%
+stateDF <- allDF %>%
     group_by(STATEFIP, Race, FB, YEAR) %>%
     summarize(N = sum(PERWT)) %>%
-    filter(YEAR %in% c(1980, 2017)) %>%
-    summarize(deltaPop = diff(N)) %>% 
-    filter(!is.na(Race)) %>%
-    print(n=30)
+    ungroup() %>%
+    mutate(Race = ifelse(is.na(Race), "Other", Race))
+
+plotCA <- stateDF %>%
+    left_join(wikiTables) %>%
+    filter(State == "CA") %>%
+    ggplot(aes(x=YEAR, y=N, color=Race, linetype=FB)) +
+    geom_line() +
+    theme_bw()
+
+ggplotly(plotCA)
+
 
 
 # Download from https://usa.ipums.org/usa/volii/boundaries.shtml
