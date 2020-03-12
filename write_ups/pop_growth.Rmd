@@ -1,0 +1,92 @@
+---
+output: 
+    html_document:
+        includes:
+            in_header: assets/huskyheader.html
+            before_body: assets/huskynavbar.html
+---
+
+# Variation in the Los Angeles Area Context
+
+## Change over time of Foreign Born Population  
+```{r message=F,warning=F,echo=F}
+library(tidyverse)
+library(ipumsr)
+library(tidycensus)
+library(mapview)
+
+county <- c("111", "059", "037", "065", "071")
+
+countyDF <- read_nhgis(
+    "../data/nhgis0033_csv.zip", 
+    data_layer = "nhgis0033_csv/nhgis0033_ts_nominal_county.csv") %>%
+    set_ipums_var_attributes(read_ipums_codebook(
+        "../data/nhgis0033_csv.zip",
+        "nhgis0033_csv/nhgis0033_ts_nominal_county_codebook.txt")) %>%
+    filter(STATEFP == "06") %>%
+    filter(COUNTYFP %in% county)
+
+tractDF <- read_nhgis(
+    "../data/nhgis0033_csv.zip", 
+    data_layer = "nhgis0033_csv/nhgis0033_ts_nominal_tract.csv") %>%
+    set_ipums_var_attributes(read_ipums_codebook(
+        "../data/nhgis0033_csv.zip",
+        "nhgis0033_csv/nhgis0033_ts_nominal_tract_codebook.txt")) %>%
+    filter(STATEFP == "06") %>%
+    filter(COUNTYFP %in% county)
+
+```
+
+```{r message=F,warning=F,echo=F}
+countyDF %>%
+    select(Native = AT5AA, Foreign = AT5AB, YEAR, STATE, COUNTY) %>%
+    filter(YEAR != "2010") %>%
+    mutate(YEAR = ifelse(YEAR == "2008-2012", "2010", YEAR)) %>% 
+    mutate(YEAR = as.numeric(YEAR)) %>%
+    pivot_longer(Native:Foreign) %>%
+    ggplot(aes(x = YEAR, y = value, color = COUNTY, linetype = name)) +
+    geom_line() +
+    theme_classic()
+```
+
+## Population Composition by Race/Ethnicity  
+
+```{r message=F,warning=F,echo=F}
+countyDF %>%
+    mutate(YEAR = as.numeric(YEAR)) %>%
+    filter(YEAR > 1970) %>%
+    mutate(Hispanic = ifelse(
+        YEAR > 1990, CV4AF + CV4AG + CV4AH + CV4AI + CV4AJ,
+        CV4AF + CV4AG + CV4AH + CV4AI)) %>%
+    rename(White = CV4AA, Black = CV4AB, API = CV4AC) %>%
+    select(White, Black, Hispanic, API, YEAR, COUNTY) %>%
+    pivot_longer(White:API) %>%
+    ggplot(aes(x = YEAR, y = value, color = name)) +
+    geom_line() +
+    theme_classic() +
+    facet_wrap(~COUNTY)
+```
+
+## Geographic Distribution of Foreign Born Population
+
+```{r message=F,warning=F,echo=F}
+census_api_key(Sys.getenv("CENSUS_API_KEY"))
+var_acs <- c(FB = "B05002_013", Total = "B05002_001")
+
+tmp <- capture.output(raw_tract_df <- get_acs(
+    "tract",
+    variables = var_acs, 
+    state = "CA",
+    county = c("Los Angeles", "Orange"),
+    geometry = TRUE,
+    cache_table = TRUE))
+
+tract_df <- raw_tract_df %>%
+    select(-moe) %>% 
+    spread(key = variable, value = estimate) %>%
+    mutate(pFB = FB / Total) %>%
+    mutate(qpFB = cut_interval(pFB, length = .20))
+
+mapview(
+    tract_df, zcol = "qpFB", legend = TRUE, lwd = .3)
+```

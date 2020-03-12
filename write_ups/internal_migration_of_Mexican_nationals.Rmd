@@ -1,0 +1,104 @@
+---
+output: 
+    html_document:
+        includes:
+            in_header: assets/huskyheader.html
+            before_body: assets/huskynavbar.html
+---
+
+<!-- Take the intro and talk about how we observe migration  -->
+<!-- The problem with previous reserach is that only takes one side of the migration picture: either stocks or flow -->
+<!-- How does this outcome measure relate to sociological conceptualization-->
+<!-- Make a paragraph specifically about PUMA data and what an MPUMA is hows is it different from other PUMA and other areal constructs.-->
+<!-- Check out how guy abel calculate flows qand reference it in your calcs for flows -->
+<!-- Calculate outflow!!! -->
+<!-- By taking a stcks and flow approach we can talk about both context of departure and context of reception like: institutional, personal, communty, connection, etc -->
+<!-- Do an analysis of the distribution of the people who are newcomers -->
+
+make a circle sankey and color it by Riosmena region where ech 
+
+# Rates of Internal Migration of Mexican Nationals in The United States
+
+## Background  
+
+Since 1970, the growth of the Mexican born population in the United States has been more than 10 fold, moving from less than 1 million in the total population to over 11 million in recent years \cite{@Gonzalez-Barrera2013}. Similarly, there has been an abundance of soico-demographic research monitoring, estimating the total of, and understanding the drivers of migration from Mexico to the United States \cite{}. For a particular subset of researchers, the particular locations in the United States that has drawn Mexican nationals is of great importance. While historically, states such as California, Texas, and Illinois have been home to the largest number of foreign born Mexican immigrants in the United States (FBMI), a number of studies have found that "new destinations" have seen much higher rates of growth in recent years such as in the South and South East \cite{@Ellis2016, @Hernandez-Leon2000, @Massey2008, @Garip2016, @Crowley2006}. While the driving forces for the change in where Mexican nationals locate in the United States is hotly discussed, less focus is placed on internal migration of Mexican nationals within the United States, i.e. migration within the United States made by immigrant populations. 
+
+Internal migration in the United States has seen a stronger focus in recent years largely because of declines at all levels of internal migration in the general population \cite{@Molly2011}. In a 2011 paper by Molly et al, the researchers found that migration has been on the decline since the 1980's. While there have been periods of temporary increase the general trend of decline has persisted across a number of levels of migration, that is the minimum distance required to constitute a move to a new location. They additionally found that foreign born individuals were less likely to have recently migrated than their native born counter parts across all years of the study. Other studies have placed a more direct focus on the internal migration patters of the foreign born population. Licther et al described in one paper the expansion of FBMI into rural locations of the United States \cite{Lichter2012a}. While they did not specifically look at rates of internal migration, they do allude to the fact that that their is likely a diffusion process of the FBMI population from traditional locations and is corroborated by other studies \cite{@Frey2011}. Other studies have dug into the mechanisms that drive migration to these new destinations \cite{@Kandel2005, @Ellis2016, @Hernandez-Leon2000}, however, it is difficult to differentiate if these newcomers are FBMIs who have previously lived in the United States or whether they are coming from Mexico. In a recent study several authors found that patterns of internal migration of the foreign population could be well observed using IRS records \cite{Foster2018} which could lend insight to differentiating recent arrivals from those FBMI who had previously been in the United States. 
+
+The general drivers of migration are many, however, many studies tend to use a model which focuses on individual or family level decision making. In this model families or "individuals choose consumption and location to maximize utility given the prevailing wage and price level in each location" \cite{@Molly2011}. Migration is seen as a utility maximization process by which individuals are continuously seeking the best location to move in order to meet the economic and social needs of them and/or their family. This model, however, neglects to account for the different local contexts that may drive migration. It is likely that individuals only entertain the idea of migration if is a perceivable option. In the international migration context, historically Mexico has been in a similar socio-demographic state as other countries where migration presented an opportunity for greater social and economic positioning, however, it is likely that the proximity to the United States and the maintenance of relationships to Mexico fostered the flow of migrants from Mexico to the United States \cite{}. Furthermore a number of other cultural, where an individual would have some understanding of the norms \cite{}, and political factors, laws that either attack or protect migrants \cite{}, outside of the power of the family and individual would effect where individuals are likely to migrate. Lastly, we would expect that the factors that effect migration would deferentially effect the FBMI population compared to other populations in the United States. FBMI occupy a different socio-economic position than other Foreign Born Immigrants and native born Hispanics in the United States that would likely have an impact on their rates of internal migration.  
+
+In addition, we expect their to be a number of varying factors across the United States which would alter the rate of internal migration of FBMI. Again, previous studies have shown that recent migration varies by regions in the United States \cite{@Molly2011}, however, how these patterns are altered specifically for FBMI is not well studied. We state four mechanisms that are likely to alter the rates of internal migration of FBMI in different regions of the United States. 1) Different regions present different economic and social opportunities. This hypothesis falls in line with the standard model of migration mentioned earlier. Individuals are morel likely to migrate to places if they see an opportunity that better presents itself in a new location \cite{@Ellis2014}. This measure is difficult to quantify because it requires information about both the sending and receiving location in terms of their economic differences for both individuals who did and did not migrate. 2) The local context of reception to immigrants alters where individuals are moving displacing some individuals via chilling mechanisms and welcoming others through protective measures. Other authors have argued on the importance of local context acting as a deterrent \cite{@Ellis2016} or incentive \cite{Jaworsky2012} for foreign born populations in the United States which could act as pull or push factors for migration. 3) The demographics of the FBMI population in the United States vary by region in important ways which alter the rates of internal migration. Previous scholars have written on the changing demographics of FBMI in the United States \cite{@Garip2016, @Riosmena2012}, dismantling the idea that the Mexican immigrant is well fit by one description. Changes in the level of education, previous work experience, sex ratio, and geography of FBMI have changed overtime \cite{@Garip2016} and have corresponded to periods of differential growth of the FBMI population in different locations in the United States. It may very well be that the differences in geography for recent re-settlement of the FBMI population may be due to demographic differences. 
+
+In this paper we analyze rates of internal migration for FBMI in the United States. We hypothesize the rates of internal migration for the FBMI population are different than the majority population, native born whites, other immigrant populations, as well as native Hispanic populations. In addition, we suspect that local contexts alter rates of migration for these population in different ways, changing the relationship of who may migrate most often. Lastly we suspect that while demographic factors that are important to internal migration do indeed effect rates of migration for these groups, the demographic differences should not explain the overall differences between each of these groups.  
+
+## Data and Methods
+
+In order to asses rates of migration for different immigrant and ethnic groups we will use Public Use Microdata from the American Community Survey provided by IPUMS USA. IPUMS USA provides a consistent set of variables across multiple survey years in order to assess changes over time. We will use the ACS 1 year data from 2005, 2010, 2015 and 2018 (the most recenteley available year of data). We begin our analysis in 2005 as this is the first year that the survey asked if you have moved in the past 1 year. In addition, the data provided tell us if a move was made between migration public use micro areas (MPUMA). While MPUMA are not typical metropolitan areas or government jurisdictions they are consistent over the period of analysis and provide more geographic resolution than state level analysis. We avoid using moves from one house to another in order to avoid moves that reflect changing of housing due to family restructuring, eviction, and possible temporary moves. In addition, the use of MPUMA data allow us to track flows between different MPUMA. The variables collcted on each individual are as follows age, sex, race, hispanic origin, foreign born status, place of birth, current MPUMA location, MPUMA location 1 year prior. We restrict our analysis to the lower 48 contiguous states as only an extremely small portion of the FBMI population reside in Alaska or Hawaii ($<.1\%$).
+
+We hypothesize that different geographic regions will have different effects on the rates of internal migration of FBMI. We place each MPUMA into one of 7 regions of the United States which are Border Land, NorthWest, Great Plains, South, SouthEast, NorthEast, and Great Lakes. These areas represent different historical areas of migration of FBMI in the United States and have been defined in previous research \cite{@Riosmena2012}.  We classify anyone declares them self as any form of Hispanic to be Hispanic, no matter their classification for race, as long as they were born in the United States. Individuals born outside of the Untied States were classified as either "Mexico" if born in Mexico, or "Other Migrant" if born elsewhere. We also include native born Whites in the analysis as additional reference group. Individuals for whom did not live in the United States in the year prior to the analysis were removed from the study. In addition, we remove the small amount of individuals who either would not disclose internal migration behavior (that is migration from one MPUMA to another) in the past year, or for who their status of internal migration was unknown. This process remove less than $<1\%$ of individuals from our analysis.
+
+We provide estimates of the probability of MPUMA migration at a number of levels of aggregation to verify that there is indeed variation between our groups of interest. Uncertainty for all estimates are calculated using Horvitz-Thompson estimators from the sampling weights provided by the ACS. For summary statistics we aggregate ages into five year age bins in order to get more stable estimators. We then run a number of survey regressions with survey weights in order to asses which sets of variables best explain the process of migration. Our regressions are as follow and represent increasing complexity in the migration process. 1) A model with only dummy variables for year of the survey. 2) Model 1 with additional sex dummy variable. 3) Model 2 with ethnicity and nativity groups. 4) Model 3 with dummy variable on location of residence of individuals into one of the 7 previously mentioned regions. 5) Model 4 with and interaction effect between dummy regions and ethnic/nativity group. 6) Model 5 with additional quadratic age effect. 7) Model 6 with year of survey dummy, ethnic/nativity group, and region three way interaction effect. 8) Model 6 with age, ethnic/nativity group, and region three way interaction effect. 9) Model 6 with sex, age, ethnic/nativity group, and region four way interaction effect. 10) Model 8 with sex and ethnic/nativity group interaction effect. Each model represents an increase in complexity from the previous model until we build up to our final model 10 which is our theoretical model of choice. In order to asses model performance we use a modification of the BIC which is suited for survey glms. 
+
+## Results 
+
+We begin by showing the national level trend for probability of migration. As with previous studies there has been a substantial decrease between 2005 and 2010. More recent years, however, show an incerase in MPUMA migration over time although this increase is not sufficient to rebound to the levels seen in 2005. 
+
+```{r echo=FALSE,message=FALSE,warning=FALSE}
+library(tidyverse)
+
+edaplots <- readRDS("../plots/edaPlots.RDS")
+lmplots <- readRDS("../plots/basiclmPlots.RDS")
+
+edaplots$nat_trend +
+    labs(x="Year", y="Probability", title = "Probability of MPUMA Migration")
+```
+
+Breaking down the age patterns of this trend shows that most of the increase in migration has come from the 15-25 age group, while most other age groups have declined in migration rate or been stable. 
+
+```{r echo=FALSE,message=FALSE,warning=FALSE}
+edaplots$age_mig
+```
+
+Breaking this down by sex and ethnic/nativity groups we see that there are substantia differences between groups, however it looks fairly consistent over time. 
+
+```{r echo=FALSE,message=FALSE,warning=FALSE}
+edaplots$sex_mig
+```
+
+and lastly we can see that there are differences by region that appear to be different for the different ethnic/nativity groups. 
+
+```{r echo=FALSE,message=FALSE,warning=FALSE}
+edaplots$cluster_white_compare
+```
+
+In order to assess the signfigance of these differences we turn to theuse of survey regression models and assess their performance by a modified version of the BIC. We use a conservative absolute difference of 50 in order to decide if you model outperforms another \cite{}. We begin by showing the the results of a simulation from the parameter estimates from model 1 which only has dummy effects on time and find a similar pattern to the national average plot first shown.
+
+```{r echo=FALSE,message=FALSE,warning=FALSE}
+lmplots$lm1
+```
+
+Next we jump to model 4 which includes effects for Sex, Ethinicity/Nativity, and Region and find that these patterns do have an effect. Model performance improves with each level of complexity added indicating that these new variables account for a signficant difference in migration rates of these groups. 
+
+```{r echo=FALSE,message=FALSE,warning=FALSE}
+lmplots$lm4
+```
+
+Intersecting Regions of the United States with the ethinic/nativity group variables as done in model 5 provides yet a better description of the data and shows the differenct regional effect that exist for diffeent groups for rates of internal migration. While in most locations Native Whites have the highest overall rate of migration across the country this differs by region in the United States.
+
+```{r echo=FALSE,message=FALSE,warning=FALSE}
+lmplots$lm5
+```
+
+Accounting for the age complexities as in model 8, we see yet another improvement and can asses how rates of migration differ for differnt age groups. 
+
+```{r echo=FALSE,message=FALSE,warning=FALSE}
+lmplots$lm8
+```
+
+The last model, while not the most complex, is the overall best performing model and accounts for an interaction between region of the United States, ethnicity/nativity group and age as well as an interaction between sex and ethnicity/nativity.
+
+
+```{r echo=FALSE,message=FALSE,warning=FALSE}
+lmplots$age_model_plot
+```
+

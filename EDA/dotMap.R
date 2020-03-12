@@ -13,13 +13,12 @@ library(mapview)
 library(leafgl)
 
 # Read in the API key so we can access the census data  
-apiKey <- read_json("keys/acs.json")
-census_api_key(apiKey$api_key)
+census_api_key(Sys.getenv("CENSUS_API_KEY"))
 
 # We want to grab all the variables that relate to pop counts that distinguish
 # between latino and non-latino populations and group by to reduce the number
 # of racial groups to just 4.
-varsDF <- load_variables(2017, "acs5") %>%
+varsDF <- load_variables(2018, "acs5") %>%
     filter(concept == "HISPANIC OR LATINO ORIGIN BY RACE") %>%
     select(-concept) %>%
     rename(variable = name) %>%
@@ -48,12 +47,40 @@ varsCenDF <- load_variables(2010, "sf1") %>%
 # Use the tidycensus to pull in their latest available 5 year ACS since it has 
 # the most detailed geographies outside of census years
 popAcsDF <- get_acs(
-    state = "CO", county = c("Denver"), 
+    state = "NC", county = c("Durham"), 
     geography="block group", # I want county level data
     variables=varsDF$variable, # iwant the variables from this list
-    year=2017, # from the 2014 acs
+    year=2018, # from the 2014 acs
     geometry=TRUE) %>%
     left_join(select(varsDF, variable, race))
+
+get_decennial(
+    state = "NC", #county = c("Durham"),
+    geography="place", # I want county level data
+    variables=varsDF$variable, # iwant the variables from this list
+    year=2010, # from the 2014 acs
+    survey = "acs1",
+    cache_table = TRUE) %>%
+    left_join(select(varsDF, variable, race)) %>%
+    filter(grepl("Durham", NAME)) %>%
+    filter(race != "Total") %>%
+    group_by(race) %>%
+    summarize(estimate = sum(estimate)) %>%
+    mutate(p = estimate/sum(estimate))
+
+get_acs(
+    state = "NC", #county = c("Durham"), 
+    geography="place", # I want county level data
+    variables=varsDF$variable, # iwant the variables from this list
+    year=2018, # from the 2014 acs
+    survey = "acs1",
+    cache_table = TRUE) %>%
+    left_join(select(varsDF, variable, race)) %>%
+    filter(grepl("Durham", NAME)) %>%
+    filter(race != "Total") %>%
+    group_by(race) %>%
+    summarize(estimate = sum(estimate)) %>%
+    mutate(p = estimate/sum(estimate))
 
 # these counts aint great but it aint terrible either enough for a demo for sure
 (scaleDF <- popAcsDF %>%
@@ -82,10 +109,10 @@ polyDF <- popAcsDF %>%
 # time so lets do it once and be done with it.
 if(!file.exists("data/pointCODF.Rds")){
     pointDF <- st_sample(polyDF, polyDF$N)
-    saveRDS(pointDF, "data/pointCODF.Rds")
+    saveRDS(pointDF, "data/pointNC.Rds")
 }
 
-pointDF <- readRDS("data/pointCODF.Rds")
+pointDF <- readRDS("data/pointNC.Rds")
 sfDF <- st_sf(
     tibble(race = unlist(lapply(1:nrow(polyDF), function(i){
         rep(polyDF$race[i], polyDF$N[i])}))), 
@@ -93,22 +120,22 @@ sfDF <- st_sf(
     mutate(clrs=case_when(
         race == "White" ~ "Blue",
         race == "Black" ~ "Green",
-        race == "Asian" ~ "Red",
-        race == "Hispanic" ~ "Yellow",
-        TRUE ~ "Brown"
+        race == "Asian" ~ "Pink",
+        race == "Hispanic" ~ "Red",
+        TRUE ~ "Yellow"
     ))
 
-minisfDF <- sample_frac(sfDF, .1)
+minisfDF <- sfDF#sample_frac(sfDF, .5)
 colMat <- t(col2rgb(minisfDF$clrs))/255
 
-#options(viewer = NULL) # view in browser
+options(viewer = NULL) # view in browser
 
 (m <- leaflet() %>%
     addProviderTiles(provider = providers$CartoDB.DarkMatter) %>%
     addGlPoints(
-        data = minisfDF, group = "pts", opacity = .3,
+        data = minisfDF, group = "pts", opacity = .8,
         weight = 3, color = colMat) %>%
-    setView(lng = -122.3, lat = 47.6, zoom = 8))
+    setView(lng = -78.9, lat = 36.1, zoom = 8))
 
 mapshot(m, "data/dotmapCO.html", selfcontained = FALSE)
 
